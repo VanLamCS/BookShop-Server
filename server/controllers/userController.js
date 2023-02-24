@@ -1,4 +1,4 @@
-import User from "../models/user.js";
+import User from "../models/User.js";
 import genToken from "../config/genToken.js";
 
 const validateEmail = (email) => {
@@ -22,7 +22,7 @@ export const getAllUsers = (req, res, next) => {
 
 //[POST] /api/user
 export const registerUser = async (req, res, next) => {
-  const { name, email, password, avatar, phone } = req.body;
+  const { name, email, password, avatar, phone, role } = req.body;
   if (!name || !email || !password || !phone) {
     res.status(400);
     next(new Error("You must fill in all information"));
@@ -51,7 +51,7 @@ export const registerUser = async (req, res, next) => {
     next(new Error("Phone number has already existed"));
   }
 
-  const user = new User({ name, email, password, avatar, phone });
+  const user = new User({ name, email, password, avatar, phone, role });
   user
     .save()
     .then((user) => {
@@ -61,6 +61,7 @@ export const registerUser = async (req, res, next) => {
         email: user.email,
         phone: user.phone,
         avatar: user.avatar,
+        role: user.role,
         token: genToken(user._id),
       });
     })
@@ -83,6 +84,7 @@ export const authUser = async (req, res, next) => {
       name: user.name,
       email: user.email,
       avatar: user.avatar,
+      role: user.role,
       token: genToken(user._id),
     });
   } else {
