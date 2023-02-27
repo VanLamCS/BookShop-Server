@@ -34,9 +34,8 @@ export const verifyToken = async (req, res, next) => {
 
 export const checkPermission = (req, res, next) => {
   const user = req.user
-  console.log(req.user)
   if (user.role != 'admin') {
-    next(new Error("Your account don\'t have permissions to add this category"))
+    next(new Error("Your account don\'t have permissions to do this action"))
   }
   next()
 }
