@@ -23,6 +23,7 @@ export const getAllUsers = (req, res, next) => {
 //[POST] /api/user
 export const registerUser = async (req, res, next) => {
   const { name, email, password, avatar, phone, role } = req.body;
+  console.log(req.body)
   if (!name || !email || !password || !phone) {
     res.status(400);
     next(new Error("You must fill in all information"));
