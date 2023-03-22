@@ -11,13 +11,13 @@ export const verifyToken = async (req, res, next) => {
 
         if (!token) {
             res.status(401);
-            next(new Error("You are not authenticated"));
+            return next(new Error("You are not authenticated"));
         }
 
         jwt.verify(token, process.env.JWT_SECRET_KEY, async (err, decoded) => {
             if (err) {
                 res.status(403);
-                next(err);
+                return next(err);
             }
 
             req.user = await User.findById(decoded.userId).select("-password");
@@ -28,14 +28,14 @@ export const verifyToken = async (req, res, next) => {
 
     if (!token) {
         res.status(401);
-        next(new Error("You are not authenticated"));
+        return next(new Error("You are not authenticated"));
     }
 };
 
 export const isAdmin = (req, res, next) => {
     const user = req.user;
     if (user.role != "admin") {
-        next(
+        return next(
             new Error("Your account don't have permissions to do this action")
         );
     }

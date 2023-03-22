@@ -20,14 +20,14 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 
 mongoose
-  .set("strictQuery", false)
-  .connect(process.env.CONNECTION_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Server listening on PORT: ${PORT}`);
-    });
-  })
-  .catch((error) => console.log(`Server can't listening`));
+    .set("strictQuery", false)
+    .connect(process.env.CONNECTION_URL, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    })
+    .then(() => {
+        app.listen(PORT, () => {
+            console.log(`Server listening on PORT: ${PORT}`);
+        });
+    })
+    .catch((error) => console.log(`Server can't listening ${error}`));
