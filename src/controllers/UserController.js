@@ -1,5 +1,5 @@
 import User from "../models/User.js";
-import genToken from "../config/genToken.js";
+import genToken from "../utils/genToken.js";
 
 const validateEmail = (email) => {
     return String(email)
