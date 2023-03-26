@@ -7,6 +7,7 @@ const router = express.Router();
 router.post("/", userController.registerUser);
 router.post("/login", userController.authUser);
 router.patch("/update", verifyToken, userController.updateProfile);
+router.patch("/updatepassword", verifyToken, userController.updatePassword);
 router.post(
     "/create-admin",
     verifyToken,
