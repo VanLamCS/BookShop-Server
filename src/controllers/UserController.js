@@ -98,6 +98,7 @@ export const authUser = async (req, res, next) => {
     }
 };
 
+//[PATCH] /api/user/update
 export const updateProfile = async (req, res, next) => {
     let userId = req.user._id;
     const { name, phone, address, avatar } = req.body;
@@ -145,6 +146,7 @@ export const updateProfile = async (req, res, next) => {
     }
 };
 
+//[PATCH] /api/user/update-password
 export const updatePassword = async (req, res, next) => {
     let userId = req.user._id;
     const { oldPassword, newPassword, confirmNewPassword } = req.body;
@@ -186,6 +188,7 @@ export const updatePassword = async (req, res, next) => {
     }
 };
 
+//[POST] /api/user/create-admin
 export const createAdminAccount = async (req, res, next) => {
     const { name, email, password, avatar, phone, confirmPassword } = req.body;
     let role = "admin";
