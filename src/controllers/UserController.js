@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+import { uploadImage } from "../utils/firebaseUpload.js";
 import genToken from "../utils/genToken.js";
 import hashPassword from "../utils/hashPassword.js";
 
@@ -23,7 +24,7 @@ export const getAllUsers = async (req, res, next) => {
 
 //[POST] /api/user
 export const registerUser = async (req, res, next) => {
-    const { name, email, password, avatar, phone, confirmPassword } = req.body;
+    const { name, email, password, phone, confirmPassword } = req.body;
     if (!name || !email || !password || !phone || !confirmPassword) {
         res.status(400);
         return next(new Error("You must fill in all information"));
@@ -41,7 +42,7 @@ export const registerUser = async (req, res, next) => {
 
     if (password !== confirmPassword) {
         res.status(400);
-        return next(new Error("Password does not match"));
+        return next(new Error("Password and confirm password do not match"));
     }
 
     const userExist = await User.findOne({ email });
@@ -57,7 +58,7 @@ export const registerUser = async (req, res, next) => {
         return next(new Error("Phone number has already existed"));
     }
 
-    const user = new User({ name, email, password, avatar, phone });
+    const user = new User({ name, email, password, phone });
     user.save()
         .then((user) => {
             res.status(201).json({
@@ -101,11 +102,8 @@ export const authUser = async (req, res, next) => {
 //[PATCH] /api/user/update
 export const updateProfile = async (req, res, next) => {
     let userId = req.user._id;
-    const { name, phone, address, avatar } = req.body;
+    const { name, phone, address } = req.body;
     let updateObj = {};
-    if (avatar) {
-        updateObj = { avatar: avatar };
-    }
     if (phone) {
         if (validatePhone(phone)) {
             updateObj = { ...updateObj, phone: phone };
@@ -169,7 +167,7 @@ export const updatePassword = async (req, res, next) => {
             { _id: userId },
             { password: hashPass },
             { new: false },
-            async (error) => {
+            (error) => {
                 if (error) {
                     res.status(500);
                     return next(
@@ -185,6 +183,38 @@ export const updatePassword = async (req, res, next) => {
     } else {
         res.status(400);
         return next(new Error("Old password is wrong"));
+    }
+};
+
+//[PATCH] /api/user/update-avatar
+export const updateAvatar = async (req, res, next) => {
+    try {
+        const userId = req.user._id;
+        const file = req.file;
+        const avatar = await uploadImage(file);
+        User.findOneAndUpdate(
+            { _id: userId },
+            { avatar: avatar.url },
+            { new: true },
+            (error, user) => {
+                if (error) {
+                    return res
+                        .status(400)
+                        .json({ status: false, message: "Update failed" });
+                } else {
+                    return res
+                        .status(200)
+                        .json({
+                            status: true,
+                            message: "Update successfully",
+                            avatar: avatar.url,
+                        });
+                }
+            }
+        );
+    } catch (error) {
+        res.status(400);
+        return next(new Error(error.message));
     }
 };
 

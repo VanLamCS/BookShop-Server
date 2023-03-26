@@ -1,14 +1,21 @@
 import express from "express";
 import * as bookController from "../controllers/BookController.js";
 import { isAdmin, verifyToken } from "../middlewares/authMiddleware.js";
+import { upload } from "../utils/firebaseUpload.js";
 
-const bookRoute = express.Router();
+const router = express.Router();
 
-bookRoute.get("/get", bookController.getBooksByCategory);
-bookRoute.get("/get/:id", bookController.getBookById);
+router.get("/get", bookController.getBooksByCategory);
+router.get("/get/:id", bookController.getBookById);
 
-bookRoute.post("/create", verifyToken, isAdmin, bookController.addBook);
-bookRoute.delete("/delete", verifyToken, isAdmin, bookController.deleteBook);
-bookRoute.patch("/update", verifyToken, isAdmin, bookController.updateBook);
+router.post(
+    "/create",
+    verifyToken,
+    isAdmin,
+    upload.array("images"),
+    bookController.addBook
+);
+router.delete("/delete", verifyToken, isAdmin, bookController.deleteBook);
+router.patch("/update", verifyToken, isAdmin, bookController.updateBook);
 
-export default bookRoute;
+export default router;

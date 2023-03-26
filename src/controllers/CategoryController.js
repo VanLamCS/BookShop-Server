@@ -5,7 +5,7 @@ import Category from "../models/Category.js";
 export const getCategories = async (req, res, next) => {
     let limit = req.query["limit"];
     let frame = req.query["frame"];
-    limit = limit ? (parseInt(limit) > 0 ? parseInt(limit) : 24) : 24;
+    limit = limit ? (parseInt(limit) > 0 ? parseInt(limit) : 50) : 50;
     frame = frame ? (parseInt(frame) > 0 ? parseInt(frame) : 1) : 1;
     let offset = (frame - 1) * limit;
     try {
@@ -26,7 +26,7 @@ export const getCategories = async (req, res, next) => {
 //[POST] /api/category/create
 export const addCategory = async (req, res, next) => {
     const { name, description } = req.body;
-    if (name.length < 1) {
+    if (name && name.length < 1) {
         return res.status(400).json({
             status: false,
             message: "Name must not be null",
@@ -87,7 +87,7 @@ export const updateCategory = async (req, res, next) => {
     const { categoryId, name, description } = req.body;
     let updateObj = {};
     if (mongoose.Types.ObjectId.isValid(categoryId)) {
-        if (name.length < 1) {
+        if (name && name.length < 1) {
             return res.status(400).json({
                 status: false,
                 message: "Name must not be null",
