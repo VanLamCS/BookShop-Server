@@ -11,8 +11,18 @@ import firebaseConfig from "../config/firebaseConfig.js";
 
 initializeApp(firebaseConfig);
 
+const imagesFilter = (req, file, cb) => {
+    if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+        return cb(new Error("Only image files are allowed!"), false);
+    }
+    cb(null, true);
+};
+
 const storage = getStorage();
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({
+    storage: multer.memoryStorage(),
+    fileFilter: imagesFilter,
+});
 
 const uploadImage = async (file) => {
     const imageName = uuidv4() + "_" + file.originalname;
