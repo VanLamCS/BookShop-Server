@@ -2,8 +2,15 @@ import mongoose from "mongoose";
 
 const ReviewSchema = new mongoose.Schema(
     {
-        ReviewPoint: Number,
-        description: String,
+        reviewPoint: {
+            type: Number,
+            min: 0,
+            max: 5,
+        },
+        description: {
+            type: String,
+            required: true,
+        },
         creator: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
@@ -12,6 +19,13 @@ const ReviewSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "Book",
         },
+        replies: [
+            {
+                message: String,
+                userId: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+            },
+        ],
     },
     {
         timestamps: true,

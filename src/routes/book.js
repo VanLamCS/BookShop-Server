@@ -5,7 +5,7 @@ import { upload } from "../utils/firebaseUpload.js";
 
 const router = express.Router();
 
-router.get("/get", bookController.getBooksByCategory);
+router.get("/get", bookController.getBooks);
 router.get("/get/:id", bookController.getBookById);
 
 router.post(

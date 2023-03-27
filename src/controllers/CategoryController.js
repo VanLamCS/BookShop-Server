@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Category from "../models/Category.js";
+import Book from "../models/Book.js";
 
 //[GET] /api/category
 export const getCategories = async (req, res, next) => {
@@ -41,6 +42,7 @@ export const addCategory = async (req, res, next) => {
         return res.status(201).json({
             status: true,
             message: "Add category successfully",
+            categoryId: cat._id,
         });
     } catch (e) {
         if (e.code == 11000) {
@@ -59,22 +61,36 @@ export const deleteCategory = async (req, res, next) => {
     let categoryId = req.body["categoryId"];
     if (mongoose.Types.ObjectId.isValid(categoryId)) {
         try {
-            let cat = await Category.findByIdAndRemove({
-                _id: categoryId,
-            }).exec();
-            if (cat) {
-                return res
-                    .status(200)
-                    .json({ status: true, message: "Deleted successfully" });
-            } else {
-                return res
-                    .status(500)
-                    .json({ status: 500, message: "Category not found" });
-            }
+            Category.findById({ _id: categoryId }, (err, category) => {
+                if (err) {
+                    return res
+                        .status(400)
+                        .json({ status: false, message: err.message });
+                } else if (category) {
+                    category
+                        .remove()
+                        .then((cat) => {
+                            return res.status(200).json({
+                                status: true,
+                                message: "Delete successfully",
+                            });
+                        })
+                        .catch((e) => {
+                            return res.status(400).json({
+                                status: false,
+                                message: "Delete failed",
+                            });
+                        });
+                } else {
+                    return res
+                        .status(400)
+                        .json({ status: false, message: "Category not found" });
+                }
+            });
         } catch (error) {
             return res
-                .status(500)
-                .json({ status: 500, message: "Server Internal Error" });
+                .status(400)
+                .json({ status: false, message: error.message });
         }
     } else {
         return res

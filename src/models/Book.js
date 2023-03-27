@@ -8,16 +8,36 @@ const BookSchema = new Schema(
             type: String,
             required: true,
         },
-        publisher: String,
+        publisher: {
+            type: String,
+            required: true,
+        },
         categories: {
             type: [mongoose.Schema.Types.ObjectId],
             ref: "Category",
         },
-        author: String,
-        description: String,
-        price: Number,
-        available: Boolean,
-        images: [String],
+        author: {
+            type: String,
+            required: true,
+        },
+        description: {
+            type: String,
+            required: true,
+        },
+        price: {
+            type: Number,
+            min: 0,
+            required: true,
+        },
+        quantity: {
+            type: Number,
+            required: true,
+            default: 1,
+        },
+        images: {
+            type: [String],
+            required: true,
+        },
         ratingPoint: {
             type: mongoose.Schema.Types.Decimal128,
             default: 0,

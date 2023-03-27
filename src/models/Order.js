@@ -19,8 +19,18 @@ const OrderSchema = new mongoose.Schema(
                     required: true,
                     min: 1,
                 },
+                cost: {
+                    type: Number,
+                    required: true,
+                    min: 0,
+                },
             },
         ],
+        totalCost: {
+            type: Number,
+            required: true,
+            min: 0,
+        },
         status: {
             type: String,
             enum: ["Pending", "Processing", "Shipped", "Delivered"],
@@ -38,6 +48,12 @@ const OrderSchema = new mongoose.Schema(
         timestamps: true,
     }
 );
+
+// OrderSchema.virtual("totalCost").get(function () {
+//     return this.items.reduce((total, item) => {
+//         return total + item.cost * item.quantity;
+//     }, 0);
+// });
 
 const Order = mongoose.model("Order", OrderSchema);
 
