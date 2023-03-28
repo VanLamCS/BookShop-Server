@@ -15,7 +15,7 @@ router.post(
     upload.array("images"),
     bookController.addBook
 );
-router.delete("/delete", verifyToken, isAdmin, bookController.deleteBook);
+router.delete("/delete/:id", verifyToken, isAdmin, bookController.deleteBook);
 router.patch("/update", verifyToken, isAdmin, bookController.updateBook);
 
 export default router;

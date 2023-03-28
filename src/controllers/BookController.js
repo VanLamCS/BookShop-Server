@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Book from "../models/Book.js";
 import Category from "../models/Category.js";
 import Order from "../models/Order.js";
@@ -212,8 +213,46 @@ export const getBooks = async (req, res, next) => {
     }
 };
 
-export const getBookById = (req, res, next) => {
-    res.status(200).json({ message: "Query a book by Id endpoints" });
+export const getBookById = async (req, res, next) => {
+    try {
+        let bookId = req.params.id;
+        if (mongoose.Types.ObjectId.isValid(bookId)) {
+            Book.findById(bookId)
+                .select(
+                    "_id name publisher author price quantity ratingPoint numOfReviews createdAt categories images"
+                )
+                .populate("categories", "_id name description")
+                .then((result) => {
+                    if (result) {
+                        let a = Number(result.ratingPoint);
+                        const data = { ...result._doc, ratingPoint: a };
+                        return res.status(200).json({
+                            status: true,
+                            message: "Query successfully",
+                            data: data,
+                        });
+                    } else {
+                        return res.status(400).json({
+                            status: false,
+                            message: `Book is not found`,
+                        });
+                    }
+                })
+                .catch((e) => {
+                    return res.status(400).json({
+                        status: false,
+                        message: `Get book error with: ${e.message}`,
+                    });
+                });
+        } else {
+            return res
+                .status(400)
+                .json({ status: false, message: "Book Id is not valid" });
+        }
+    } catch (error) {
+        res.status(400);
+        return next(new Error(`Server Error: ${error.message}`));
+    }
 };
 
 export const addBook = async (req, res, next) => {
@@ -237,7 +276,6 @@ export const addBook = async (req, res, next) => {
         if (
             !name ||
             !publisher ||
-            !categories ||
             !author ||
             !description ||
             !price ||
@@ -249,7 +287,7 @@ export const addBook = async (req, res, next) => {
         } else {
             price = parseInt(price);
             quantity = parseInt(quantity);
-            let cats = JSON.parse(categories);
+            let cats = categories ? JSON.parse(categories) : [];
             let uploadedImgs = await uploadImages(files);
             let images = uploadedImgs.map((e) => e.url);
             let checkCats = await Promise.all(
@@ -302,9 +340,112 @@ export const addBook = async (req, res, next) => {
 };
 
 export const deleteBook = (req, res, next) => {
-    res.status(200).json({ message: "Delete a book endpoints" });
+    try {
+        let bookId = req.params.id;
+        if (mongoose.Types.ObjectId.isValid(bookId)) {
+            Book.deleteOne({ _id: bookId })
+                .then((result) => {
+                    return res.status(200).json({
+                        status: true,
+                        message: `Deleted ${result.deletedCount} books`,
+                    });
+                })
+                .catch((e) => {
+                    return res.status(400).json({
+                        status: false,
+                        message: `Delete error with: ${e.message}`,
+                    });
+                });
+        } else {
+            return res
+                .status(400)
+                .json({ status: false, message: "Book Id is not valid" });
+        }
+    } catch (error) {
+        res.status(400);
+        return next(new Error(`Server Error: ${error.message}`));
+    }
 };
 
-export const updateBook = (req, res, next) => {
-    res.status(200).json({ message: "Update a book endpoints" });
+// Temporarily this api allows updating data except images
+export const updateBook = async (req, res, next) => {
+    try {
+        let {
+            bookId,
+            name,
+            publisher,
+            description,
+            author,
+            price,
+            quantity,
+            categories,
+        } = req.body;
+        let newData = {};
+        if (mongoose.Types.ObjectId.isValid(bookId)) {
+            if (
+                !name &&
+                !publisher &&
+                !description &&
+                !author &&
+                !price &&
+                !quantity &&
+                !categories
+            )
+                return res
+                    .status(200)
+                    .json({ status: false, message: "Nothing changes" });
+            if (name) newData.name = name;
+            if (publisher) newData.publisher = publisher;
+            if (description) newData.description = description;
+            if (author) newData.author = author;
+            if (price && parseInt(price) >= 0) newData.price = price;
+            if (quantity && parseInt(quantity) >= 0)
+                newData.quantity = quantity;
+            let checkCats = Array.isArray(categories)
+                ? await Promise.all(
+                      categories.map(async (e) => {
+                          try {
+                              const cat = await Category.findById(e).exec();
+                              if (cat) {
+                                  return true;
+                              }
+                              return false;
+                          } catch (e) {
+                              return false;
+                          }
+                      })
+                  )
+                : [];
+            const checkCat = checkCats.every((e) => e === true);
+            if (checkCat) {
+                if (Array.isArray(categories) && categories.length > 0)
+                    newData.categories = categories;
+                const book = await Book.findByIdAndUpdate(bookId, newData, {
+                    new: true,
+                }).exec();
+                if (book) {
+                    return res.status(200).json({
+                        status: true,
+                        message: "Update successfully",
+                        data: book,
+                    });
+                } else {
+                    return res
+                        .status(400)
+                        .json({ status: false, message: "Update failed" });
+                }
+            } else {
+                return res
+                    .status(400)
+                    .json({ status: false, message: "Categories have error" });
+            }
+        } else {
+            return res
+                .status(400)
+                .json({ status: false, message: "Book ID is not valid" });
+        }
+    } catch (error) {
+        res.status(400);
+        return next(new Error(`Error with: ${error.message}`));
+    }
 };
