@@ -1,0 +1,364 @@
+swagger: "2.0"
+info:
+  title: BookShop APIs Document
+  description: BookShop APIs document.
+  version: 1.0.0
+  contact:
+    email: vanlam.cs76@gmail.com
+  servers:
+    - url: "http://localhost:5000/"
+      scheme: http
+      description: Local server
+host: 'localhost:5000'
+basePath: /api
+schemes:
+  - http
+
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: Enter your JWT token to authenticate your requests. 'Bearer <access token>'
+
+consumes:
+  - application/json
+produces:
+  - application/json
+
+
+paths:
+  /user:
+    post:
+      tags:
+        - User
+      summary: Register on the system
+      description: Returns information about your account and an access token
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: User information
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Your name
+                required: true
+              email:
+                type: string
+                description: Your email
+                required: true
+              phone:
+                type: string
+                description: Your phone number
+                required: true
+              password:
+                type: string
+                description: Your password
+                required: true
+              confirmPassword:
+                type: string
+                description: Re-enter your password
+                required: true
+      responses:
+        "201":
+          description: Register successfully
+          schema:
+            type: object
+            properties:
+              _id:
+                type: string
+                description: Your accout ID on the system
+              name:
+                type: string
+                description: Your name
+              email:
+                type: string
+                description: Your email
+              phone:
+                type: string
+                description: Your phone number
+              role:
+                type: string
+                description: Your role on the system. Default is 'customer'
+              token:
+                type: string
+                description: Your access token 
+        "400":
+          description: Error with message
+  
+  /user/login:
+    post:
+      tags:
+        - User
+      summary: Login to the system
+      description: Returns some values and an access token for the user
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: User login credentials
+          required: true
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                description: User email
+              password:
+                type: string
+                description: User password
+      responses:
+        "200":
+          description: Login successful
+          schema:
+            type: object
+            properties:
+              _id:
+                type: string
+                description: Your account ID in the system
+              name:
+                type: string
+                description: Your name
+              email:
+                type: string
+                description: Your email
+              avatar:
+                type: string
+                description: Your profile picture url
+              role: 
+                type: string
+                description: Your role in system. Default is 'customer'
+              token:
+                type: string
+                description: Your access token
+        "400":
+          description: Something error with message
+
+  /user/update:
+    patch:
+      tags:
+        - User
+      summary: Update user profile
+      description: Updates profile and returns a message
+      security:
+        - Bearer: []
+      parameters:
+        # - name: Authorization
+        #   in: header
+        #   description: An authorization token with 'Bearer ' prefix.
+        #   required: true
+        #   type: string
+        - name: body
+          in: body
+          description: The body contain data to update
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Your name
+              phone:
+                type: string
+                description: Your phone number
+              address:
+                type: string
+                description: Your address
+      responses:
+        "200":
+          description: Update successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Just a message
+                example: Update successfully
+              user:
+                $ref: "#definitions/UserInfo"
+        "400":
+          description: Error with a message
+        
+  /user/update-avatar:
+    patch:
+      tags:
+        - User
+      summary: Update user's avatar
+      description: Update the avatar image of the current user.
+      security:
+        - Bearer: []
+      parameters:
+        # - name: Authorization
+        #   description: An authorization token with 'Bearer ' prefix.
+        #   in: header
+        #   type: string
+        #   required: true
+        - name: avatar
+          description: Image file
+          in: formData
+          type: file
+          required: true
+      responses:
+        "200":
+          description: Update avatar successfully
+          schema:
+            type: object
+            properties:
+              status:
+                type: boolean
+                description: true or false
+                example: true
+              message: 
+                type: string
+                description: Just a message
+                example: Update successfully
+              avatar:
+                type: string
+                example: New profile image url
+        "400":
+          description: Update failed with a message
+        "401":
+          description: Not authenticated
+
+  /user/update-password:
+    patch:
+      tags:
+        - User
+      summary: Change password
+      description: Return a success or failure message
+      security:
+        - Bearer: []
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              oldPassword:
+                type: string
+                description: Old password
+                required: true
+              newPassword:
+                type: string
+                description: New password
+                required: true
+              confirmNewPassword:
+                type: string
+                description: Confirm new password
+                required: true
+      responses:
+        "200":
+          description: "Update password successfully"
+          schema:
+            type: object
+            properties:
+              message: 
+                type: string
+                description: success message
+                example: Update password successfully
+        "400":
+          description: Update failed with a message
+        "401":
+          description: Not authenticated            
+
+  /user/create-admin:
+    post:
+      tags:
+        - User
+      summary: Create an admin account
+      description: Creates and returns information about admin account with access token.
+      security:
+        - Bearer: []
+      parameters:
+        - name: body
+          in: body
+          description: Content in request body
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Name of admin
+                example: Van Lam
+              email:
+                type: string
+                description: Email of admin
+                format: email
+              phone:
+                type: string
+                description: Phone number of admin
+                example: "0988030845"
+              password:
+                type: string
+                description: Password
+              confirmPassword:
+                type: string
+                description: Confirm password
+      responses:
+        "201":
+          description: Create admin account successfully
+          schema:
+            type: object
+            properties:
+              status:
+                type: boolean
+                description: Success or Failure
+              message:
+                type: string
+                description: Success message
+              data:
+                $ref: "#definitions/UserInfo"
+        "400":
+          description: Create failed with a message
+        "401":
+          description: Not authenticated
+        "403":
+          description: Not authorized
+
+
+
+definitions:
+  UserInfo:
+    type: object
+    properties:
+      _id:
+        type: string
+        description: The account ID on the system
+      email:
+        type: string
+        format: email
+        description: User's email
+      phone:
+        type: string
+        description: Phone number
+        example: "0988030845"
+      name:
+        type: string
+        description: User's name
+        example: Le Van Lam
+      avatar:
+        type: string
+        description: Profile image url
+      role:
+        type: string
+        description: User's role on system (admin, customer)
+        example: admin
+      createdAt:
+        type: string
+        format: date-time
+        description: The time the account was created
+      address:
+        type: string
+        description: User's address
+        example: Ho Chi Minh City
+      

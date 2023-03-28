@@ -58,7 +58,14 @@ export const registerUser = async (req, res, next) => {
         return next(new Error("Phone number has already existed"));
     }
 
-    const user = new User({ name, email, password, phone });
+    const user = new User({
+        name,
+        email,
+        password,
+        phone,
+        avatar: "",
+        address: "",
+    });
     user.save()
         .then((user) => {
             res.status(201).json({
@@ -67,6 +74,7 @@ export const registerUser = async (req, res, next) => {
                 email: user.email,
                 phone: user.phone,
                 avatar: user.avatar,
+                createdAt: user.createdAt,
                 role: user.role,
                 token: genToken(user._id),
             });
@@ -85,7 +93,7 @@ export const authUser = async (req, res, next) => {
     const user = await User.findOne({ email });
 
     if (user && (await user.matchPassword(password))) {
-        res.status(201).json({
+        res.status(200).json({
             _id: user._id,
             name: user.name,
             email: user.email,
@@ -94,7 +102,7 @@ export const authUser = async (req, res, next) => {
             token: genToken(user._id),
         });
     } else {
-        res.status(401);
+        res.status(400);
         return next(new Error("Invalid email or password !"));
     }
 };
@@ -137,7 +145,9 @@ export const updateProfile = async (req, res, next) => {
     try {
         let user = await User.findOneAndUpdate({ _id: userId }, updateObj, {
             new: true,
-        });
+        })
+            .select("_id email name phone avatar role createdAt address")
+            .exec();
         res.status(200).json({ message: "Update successfully", user: user });
     } catch (e) {
         res.status(500).json({ message: e.message });
@@ -202,13 +212,11 @@ export const updateAvatar = async (req, res, next) => {
                         .status(400)
                         .json({ status: false, message: "Update failed" });
                 } else {
-                    return res
-                        .status(200)
-                        .json({
-                            status: true,
-                            message: "Update successfully",
-                            avatar: avatar.url,
-                        });
+                    return res.status(200).json({
+                        status: true,
+                        message: "Update successfully",
+                        avatar: avatar.url,
+                    });
                 }
             }
         );
@@ -220,7 +228,7 @@ export const updateAvatar = async (req, res, next) => {
 
 //[POST] /api/user/create-admin
 export const createAdminAccount = async (req, res, next) => {
-    const { name, email, password, avatar, phone, confirmPassword } = req.body;
+    const { name, email, password, phone, confirmPassword } = req.body;
     let role = "admin";
     if (!name || !email || !password || !phone || !confirmPassword) {
         res.status(400);
@@ -255,17 +263,30 @@ export const createAdminAccount = async (req, res, next) => {
         return next(new Error("Phone number has already existed"));
     }
 
-    const user = new User({ name, email, password, avatar, phone, role });
+    const user = new User({
+        name,
+        email,
+        password,
+        phone,
+        role,
+        avatar: "",
+        address: "",
+    });
     user.save()
         .then((user) => {
             res.status(201).json({
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-                phone: user.phone,
-                avatar: user.avatar,
-                role: user.role,
-                token: genToken(user._id),
+                status: true,
+                message: "Create admin account successfully",
+                data: {
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    phone: user.phone,
+                    avatar: user.avatar,
+                    role: user.role,
+                    createdAt: user.createdAt,
+                    token: genToken(user._id),
+                },
             });
         })
         .catch(next);

@@ -35,6 +35,7 @@ export const verifyToken = async (req, res, next) => {
 export const isAdmin = (req, res, next) => {
     const user = req.user;
     if (user.role != "admin") {
+        res.status(403);
         return next(
             new Error("Your account don't have permissions to do this action")
         );
