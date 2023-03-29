@@ -39,7 +39,12 @@ export const createOrder = async (req, res, next) => {
             items: itemsWithCost,
             totalCost: totalCost,
         });
-        await order.save();
+        await (
+            await order.save()
+        ).populate(
+            "items.product",
+            "_id name publisher author price description"
+        );
         res.status(201).json({ status: true, order: order });
     } catch (error) {
         res.status(400);

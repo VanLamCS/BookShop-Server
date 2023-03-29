@@ -11,10 +11,12 @@ export const getCategories = async (req, res, next) => {
     let offset = (frame - 1) * limit;
     try {
         let cats = await Category.find()
+            .select("_id name description")
             .sort({ createdAt: "asc" })
             .skip(offset)
             .limit(limit);
         res.status(200).json({
+            status: true,
             message: "Get categories successfully",
             data: cats,
         });
@@ -42,7 +44,11 @@ export const addCategory = async (req, res, next) => {
         return res.status(201).json({
             status: true,
             message: "Add category successfully",
-            categoryId: cat._id,
+            data: {
+                _id: cat._id,
+                name: cat.name,
+                description: cat.description,
+            },
         });
     } catch (e) {
         if (e.code == 11000) {
@@ -56,9 +62,9 @@ export const addCategory = async (req, res, next) => {
     }
 };
 
-//[DELETE] /api/category/delete
+//[DELETE] /api/category/delete/:id
 export const deleteCategory = async (req, res, next) => {
-    let categoryId = req.body["categoryId"];
+    let categoryId = req.params.id;
     if (mongoose.Types.ObjectId.isValid(categoryId)) {
         try {
             Category.findById({ _id: categoryId }, (err, category) => {
@@ -120,9 +126,15 @@ export const updateCategory = async (req, res, next) => {
                 updateObj
             );
             if (catUpdate) {
-                return res
-                    .status(200)
-                    .json({ status: true, message: "Updated successfully" });
+                return res.status(200).json({
+                    status: true,
+                    message: "Updated successfully",
+                    data: {
+                        _id: categoryId,
+                        name: catUpdate.name,
+                        description: catUpdate.description,
+                    },
+                });
             } else {
                 return res
                     .status(400)

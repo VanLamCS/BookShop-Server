@@ -8,6 +8,7 @@ export const getBooks = async (req, res, next) => {
     try {
         const orderBy = req.query.order_by || "desc";
         let sortBy = req.query.sort_by || "created-ad";
+        let cat = req.query.category || null;
         const minPrice = parseInt(req.query.min_price) || 0;
         const maxPrice = parseInt(req.query.max_price) || Infinity;
         const limit = parseInt(req.query.limit) || 24;
@@ -20,6 +21,9 @@ export const getBooks = async (req, res, next) => {
             sortBy = "createdAt";
         } else {
             sortBy = "createdAt";
+        }
+        if (!mongoose.Types.ObjectId.isValid(cat)) {
+            cat = null;
         }
         const project = {
             _id: 1,
@@ -104,6 +108,13 @@ export const getBooks = async (req, res, next) => {
                         },
                     },
                 },
+                cat
+                    ? {
+                          $match: {
+                              categories: mongoose.Types.ObjectId(cat),
+                          },
+                      }
+                    : { $match: {} },
                 {
                     $lookup: {
                         from: "categories",
@@ -164,6 +175,13 @@ export const getBooks = async (req, res, next) => {
                         {
                             $limit: limit,
                         },
+                        cat
+                            ? {
+                                  $match: {
+                                      categories: mongoose.Types.ObjectId(cat),
+                                  },
+                              }
+                            : { $match: {} },
                         {
                             $lookup: {
                                 from: "categories",

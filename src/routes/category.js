@@ -8,7 +8,7 @@ router.get("/", CategoryController.getCategories);
 
 router.post("/create", verifyToken, isAdmin, CategoryController.addCategory);
 router.delete(
-    "/delete",
+    "/delete/:id",
     verifyToken,
     isAdmin,
     CategoryController.deleteCategory
