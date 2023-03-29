@@ -28,6 +28,7 @@ produces:
 
 
 paths:
+  # User
   /user:
     post:
       tags:
@@ -325,6 +326,86 @@ paths:
         "403":
           description: Not authorized
 
+  # Book
+  /book/create:
+    post: 
+      tags:
+        - Book
+      summary: Upload a book product
+      description: Returns information about the book that has just been uploaded
+      security:
+        - Bearer: []
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: Authorization
+          in: header
+          description: _Bearer 'access token'_
+          type: string
+        - name: name
+          in: formData
+          description: The name of the book
+          required: true
+          type: string
+        - name: publisher
+          in: formData
+          description: The name of publisher
+          required: true
+          type: string
+        - name: categories
+          in: formData
+          description: A list of category ID
+          type: array
+            items:
+              type: string
+          example: ["CategoryID 1", "CategoryID 2"]
+        - name: author
+          in: formData
+          description: The name of author
+          type: string
+          required: true
+        - name: price
+          in: formData
+          type: integer
+          description: Price of the book
+          required: true
+        - name: quantity
+          in: formData
+          type: integer
+          description: The number of books are available
+          required: true
+        - name: description
+          in: formData
+          type: string
+          description: Book description
+          required: true
+        - name: images
+          in: formData
+          type: array
+          description: A list of image files
+          items:
+            type: file    
+      responses:
+        "201":
+          description: Create a book successfully
+          schema:
+            type: object
+            properties:
+              status: 
+                type: boolean
+                description: Create successfully and returns true
+              data:
+                $ref: "#definitions/BookInfo"
+        "400":
+          description: Create failed with a error message
+        "401":
+          description: Not authenticated
+        "403":
+          description: Not authorized
+        "500":
+          description: Server Internal Error      
+
+  
 
 
 definitions:
@@ -361,4 +442,58 @@ definitions:
         type: string
         description: User's address
         example: Ho Chi Minh City
-      
+  BookInfo:
+    type: object
+    properties:
+      _id:
+        type: string
+        description: The book ID on the system
+      name:
+        type: string
+        description: Book name
+        example: C++ Basic
+      publisher:
+        type: string
+        description: Publisher of the book
+      author:
+        type: string
+        description: Author of the book
+      price:
+        type: integer
+        description: Price of book
+      quantity:
+        type: integer
+        description: The number of books are available
+      ratingPoint:
+        type: number
+        description: The rating point
+      numOfReivews: 
+        type: integer
+        description: The number of ratings
+      createdAt: 
+        type: string
+        format: date-time
+        description: The time which the book was created
+      categories:
+        type: array
+        description: A list of categories
+        items:
+          type: object
+          properties:
+            _id: 
+              type: string
+              description: ID of category
+            name:
+              type: string
+              description: Name of category
+              example: Shirt
+            description:
+              type: string
+              description: Category description
+      images:
+        type: array
+        description: A list of image url
+        items:
+          type: string
+          example: Image URL
+

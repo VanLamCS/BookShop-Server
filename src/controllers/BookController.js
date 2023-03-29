@@ -316,12 +316,28 @@ export const addBook = async (req, res, next) => {
                     images: images,
                 });
                 book.save()
-                    .then((b) => {
-                        return res
-                            .status(201)
-                            .json({ status: true, data: book });
+                    .then(async (b) => {
+                        await b.populate("categories", "_id name description");
+                        return res.status(201).json({
+                            status: true,
+                            data: {
+                                _id: b._id,
+                                name: b.name,
+                                publisher: b.publisher,
+                                author: b.author,
+                                description: b.description,
+                                createdAt: b.createdAt,
+                                price: Number(b.price),
+                                ratingPoint: Number(b.ratingPoint),
+                                numOfReviews: Number(b.numOfReviews),
+                                quantity: b.quantity,
+                                categories: b.categories,
+                                images: b.images,
+                            },
+                        });
                     })
                     .catch((e) => {
+                        console.log(e.message);
                         return res.status(500).json({
                             status: false,
                             message: "Server Internal Error",
