@@ -1,3 +1,4 @@
+import { async } from "@firebase/util";
 import mongoose from "mongoose";
 import Book from "../models/Book.js";
 import Category from "../models/Category.js";
@@ -508,5 +509,39 @@ export const updateBook = async (req, res, next) => {
     } catch (error) {
         res.status(400);
         return next(new Error(`Error with: ${error.message}`));
+    }
+};
+
+export const searchBooks = async (req, res, next) => {
+    try {
+        let searchKeyword = req.body.value;
+        let limit = parseInt(req.body.limit);
+        limit = limit > 0 ? limit : 24;
+        let frame = parseInt(req.body.frame);
+        frame = frame > 0 ? frame : 1;
+        const regex = new RegExp(searchKeyword, "i");
+        const books = await Book.find({
+            $or: [
+                { name: { $regex: regex } },
+                { author: { $regex: regex } },
+                { "categories.name": { $regex: regex } },
+            ],
+        })
+            .populate("categories", "_id name description")
+            .skip((frame - 1) * limit)
+            .limit(limit)
+            .select(
+                "_id name publisher categories author description price quantity images createdAt ratingPoint numOfReviews"
+            );
+        let data = books.map((book) => ({
+            ...book._doc,
+            ratingPoint: Number(book.ratingPoint),
+        }));
+        return res
+            .status(200)
+            .json({ status: true, message: "Search OK", data: data });
+    } catch (error) {
+        res.status(400);
+        return next(new Error(`Error: ${error.message}`));
     }
 };

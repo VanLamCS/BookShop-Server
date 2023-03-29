@@ -17,5 +17,6 @@ router.post(
 );
 router.delete("/delete/:id", verifyToken, isAdmin, bookController.deleteBook);
 router.patch("/update", verifyToken, isAdmin, bookController.updateBook);
+router.post("/search", bookController.searchBooks);
 
 export default router;
