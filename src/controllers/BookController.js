@@ -6,18 +6,20 @@ import { uploadImages, uploadImage } from "../utils/firebaseUpload.js";
 
 export const getBooks = async (req, res, next) => {
     try {
-        let orderBy = req.query.order_by || "createdAt";
-        const sortBy = req.query.sort_by || "desc";
+        const orderBy = req.query.order_by || "desc";
+        let sortBy = req.query.sort_by || "created-ad";
         const minPrice = parseInt(req.query.min_price) || 0;
         const maxPrice = parseInt(req.query.max_price) || Infinity;
         const limit = parseInt(req.query.limit) || 24;
         const frame = parseInt(req.query.frame) || 1;
         const skip = (frame - 1) * limit;
-        if (orderBy === "price" || orderBy === "createdAt") {
-        } else if (orderBy === "best-sellers") {
-            // orderBy = "totalSold";
+        if (sortBy === "price") {
+        } else if (sortBy === "best-sellers") {
+            // sortBy = "totalSold";
+        } else if (sortBy === "created-at") {
+            sortBy = "createdAt";
         } else {
-            orderBy = "createdAt";
+            sortBy = "createdAt";
         }
         const project = {
             _id: 1,
@@ -38,7 +40,7 @@ export const getBooks = async (req, res, next) => {
             },
             images: 1,
         };
-        if (orderBy === "best-sellers") {
+        if (sortBy === "best-sellers") {
             let query = Order.aggregate([
                 {
                     $unwind: "$items",
@@ -112,7 +114,7 @@ export const getBooks = async (req, res, next) => {
                 },
                 {
                     $sort: {
-                        totalSold: sortBy === "asc" ? 1 : -1,
+                        totalSold: orderBy === "asc" ? 1 : -1,
                     },
                 },
                 {
@@ -153,7 +155,7 @@ export const getBooks = async (req, res, next) => {
                         },
                         {
                             $sort: {
-                                [orderBy]: sortBy === "asc" ? 1 : -1,
+                                [sortBy]: orderBy === "asc" ? 1 : -1,
                             },
                         },
                         {
@@ -183,7 +185,18 @@ export const getBooks = async (req, res, next) => {
                                 );
                                 const totalSold = sold ? sold.totalSold : 0;
                                 return {
-                                    ...book,
+                                    _id: book._id,
+                                    name: book.name,
+                                    publisher: book.publisher,
+                                    author: book.author,
+                                    description: book.description,
+                                    createdAt: book.createdAt,
+                                    price: Number(book.price),
+                                    ratingPoint: Number(book.ratingPoint),
+                                    numOfReviews: Number(book.numOfReviews),
+                                    quantity: book.quantity,
+                                    categories: book.categories,
+                                    images: book.images,
                                     totalSold,
                                 };
                             });
@@ -251,7 +264,7 @@ export const getBookById = async (req, res, next) => {
         }
     } catch (error) {
         res.status(400);
-        return next(new Error(`Server Error: ${error.message}`));
+        return next(new Error(`Error: ${error.message}`));
     }
 };
 
@@ -440,10 +453,24 @@ export const updateBook = async (req, res, next) => {
                     new: true,
                 }).exec();
                 if (book) {
+                    await book.populate("categories", "_id name description");
                     return res.status(200).json({
                         status: true,
                         message: "Update successfully",
-                        data: book,
+                        data: {
+                            _id: book._id,
+                            name: book.name,
+                            publisher: book.publisher,
+                            author: book.author,
+                            description: book.description,
+                            createdAt: book.createdAt,
+                            price: Number(book.price),
+                            ratingPoint: Number(book.ratingPoint),
+                            numOfReviews: Number(book.numOfReviews),
+                            quantity: book.quantity,
+                            categories: book.categories,
+                            images: book.images,
+                        },
                     });
                 } else {
                     return res

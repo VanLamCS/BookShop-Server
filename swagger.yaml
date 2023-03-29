@@ -405,8 +405,142 @@ paths:
         "500":
           description: Server Internal Error      
 
-  
+  /book/get:
+    get:
+      tags:
+        - Book
+      summary: Get a list of books
+      description: Returns a list of book objects according to the conditions
+      parameters:
+        - name: sort_by
+          in: query
+          description: The field of type to sort. Valid values are: price, created-at, best-sellers.
+          type: string
+          enum: [price, best-sellers, created-at]
+          default: created-at
+        - name: order_by
+          in: query
+          description: The order in which to sort books. Valid values are: asc and desc.
+          type: string
+          enum: [asc, desc]
+          default: desc
+        - name: min_price
+          in: query
+          description: The minimum price of books
+          type: integer
+          minimum: 0
+          default: 0
+        - name: max_price
+          in: query
+          description: The maximum price of books
+          type: integer
+          minimum: 0
+        - name: limit
+          in: query
+          description: The maximum number of books to retrieve
+          type: integer
+          default: 24
+        - name: frame
+          in: query
+          description: The page number to retrieve
+          type: integer
+          minimum: 1
+          default: 1
+      responses:
+        "200":  
+          description: Gets successfully and returns data
+          schema:
+            type: object
+            properties:
+              status:
+                type: boolean
+                description: Gets successfully and return true
+              books:
+                type: array
+                items:
+                  type: object
+                  $ref: "#definitions/BookInfo"
 
+  /book/get/{id}:
+    get:
+      tags:
+        - Book
+      summary: Query a book by ID
+      description: Returns a book object
+      parameters:
+        - name: id
+          in: path
+          description: Book ID
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Query successfully
+          schema:
+            type: object
+            properties:
+              status: 
+                type: boolean
+                description: true or false status
+              message:
+                type: string
+                description: Success message
+              data:
+                $ref: "#definitions/BookInfo"
+        "400":
+          description: Query failed with a message
+                
+  /book/update:
+    patch:
+      tags:
+        - Book
+      summary: Update book
+      description: Returns new book information
+      security:
+        - Bearer: []
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer 'access token'
+          type: string
+        - name: body
+          in: body
+          description: Data to update
+          schema:
+            type: object
+            properties:
+              bookId: 
+                type: string
+                description: The book ID on the system
+                required: true
+                example: This is a book ID
+              publisher:
+                type: string
+                description: The book's publisher
+              description:
+                type: string
+                description: Book's description
+              author:
+                type: string
+                description: The book's author
+              price:
+                type: integer
+                description: Book's price
+              quantity:
+                type: integer
+                description: The number of books are available
+              categories:
+                type: array
+                description: The list of categoryIDs. Null value will not change
+                items:
+                  type: string
+                  description: Category ID
+                  example: "This is a category ID"
+      responses:
+        "200":
+          description: Update successfully
+                
+                
 
 definitions:
   UserInfo:
