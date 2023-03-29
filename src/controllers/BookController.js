@@ -20,6 +20,8 @@ export const getBooks = async (req, res, next) => {
             // sortBy = "totalSold";
         } else if (sortBy === "created-at") {
             sortBy = "createdAt";
+        } else if (sortBy === "rating") {
+            sortBy = "ratingPoint";
         } else {
             sortBy = "createdAt";
         }

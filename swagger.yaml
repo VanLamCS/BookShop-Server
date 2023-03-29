@@ -416,7 +416,7 @@ paths:
           in: query
           description: The field of type to sort. Valid values are: price, created-at, best-sellers.
           type: string
-          enum: [price, best-sellers, created-at]
+          enum: [price, best-sellers, created-at, rating]
           default: created-at
         - name: order_by
           in: query
