@@ -33,6 +33,7 @@ const BookSchema = new Schema(
             type: Number,
             required: true,
             default: 1,
+            min: 0,
         },
         images: {
             type: [String],
