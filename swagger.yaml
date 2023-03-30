@@ -9,7 +9,7 @@ info:
     - url: "http://localhost:5000/"
       scheme: http
       description: Local server
-host: 'localhost:5000'
+host: localhost:5000
 basePath: /api
 schemes:
   - http
@@ -19,7 +19,7 @@ securityDefinitions:
     type: apiKey
     name: Authorization
     in: header
-    description: Enter your JWT token to authenticate your requests. 'Bearer <access token>'
+    description: Enter your JWT token to authenticate your requests. _Bearer 'access token'_
 
 consumes:
   - application/json
@@ -145,6 +145,31 @@ paths:
         "400":
           description: Something error with message
 
+  /user/profile:
+    get:
+      tags:
+        - User
+      summary: Get information about myself
+      description: Return a user profile
+      security:
+        - Bearer: []
+      parameters:
+        - name: Authorization
+          in: header
+          type: string
+          description: _Bearer 'token'_
+      responses:
+        "200":
+          description: Get data successfully
+          schema:
+            type: object
+            properties:
+              status:
+                type: boolean
+                example: true
+              data:
+                $ref: "#definitions/UserInfo"
+
   /user/update:
     patch:
       tags:
@@ -154,11 +179,11 @@ paths:
       security:
         - Bearer: []
       parameters:
-        # - name: Authorization
-        #   in: header
-        #   description: An authorization token with 'Bearer ' prefix.
-        #   required: true
-        #   type: string
+        - name: Authorization
+          in: header
+          description: _Bearer 'token'_
+          # required: true
+          type: string
         - name: body
           in: body
           description: The body contain data to update
@@ -198,11 +223,11 @@ paths:
       security:
         - Bearer: []
       parameters:
-        # - name: Authorization
-        #   description: An authorization token with 'Bearer ' prefix.
-        #   in: header
-        #   type: string
-        #   required: true
+        - name: Authorization
+          description: _Bearer 'token'_
+          in: header
+          type: string
+          # required: true
         - name: avatar
           description: Image file
           in: formData
@@ -239,6 +264,11 @@ paths:
       security:
         - Bearer: []
       parameters:
+        - name: Authorization
+          description: _Bearer 'token'_
+          in: header
+          type: string
+          # required: true
         - name: body
           in: body
           required: true
@@ -281,6 +311,11 @@ paths:
       security:
         - Bearer: []
       parameters:
+        - name: Authorization
+          description: _Bearer 'token'_
+          in: header
+          type: string
+          # required: true
         - name: body
           in: body
           description: Content in request body
@@ -325,6 +360,8 @@ paths:
           description: Not authenticated
         "403":
           description: Not authorized
+
+
 
   # Book
   /book/create:
@@ -556,7 +593,8 @@ paths:
       parameters:
         - name: Authorization
           in: header
-          description: _Bearer 'access token'_
+          description: Bearer 'access token'
+          type: string
         - name: id
           in: path
           description: Book ID
@@ -669,7 +707,7 @@ paths:
       parameters:
         - name: Authorization
           in: header
-          description: _Bearer 'access token'
+          description: Bearer 'access token'
           type: string
         - name: body
           in: body
@@ -721,7 +759,7 @@ paths:
         - name: Authorization
           in: header
           type: string
-          description: _Bearer 'token'
+          description: Bearer 'token'
         - name: body
           in: body
           required: true
@@ -774,7 +812,7 @@ paths:
         - name: Authorization
           in: header
           type: string
-          description: _Bearer 'token'
+          description: Bearer 'token'
         - name: id
           in: path
           description: Category ID
@@ -802,7 +840,7 @@ paths:
       parameters:
         - name: Authorization
           in: header
-          description: _Bearer 'token'_ 
+          description: Bearer 'token' 
           type: string
         - name: body
           in: body

@@ -291,3 +291,16 @@ export const createAdminAccount = async (req, res, next) => {
         })
         .catch(next);
 };
+
+export const myProfile = async (req, res, next) => {
+    try {
+        const userId = req.user._id;
+        const user = await User.findById(userId).select(
+            "_id email phone name avatar createdAt role"
+        );
+        return res.status(200).json({ status: true, data: user });
+    } catch (error) {
+        res.status(400);
+        return next(new Error(`Error: ${error.message}`));
+    }
+};

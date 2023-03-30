@@ -21,5 +21,6 @@ router.post(
     isAdmin,
     userController.createAdminAccount
 );
+router.get("/profile", verifyToken, userController.myProfile);
 
 export default router;
