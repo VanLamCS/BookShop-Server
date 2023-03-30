@@ -19,7 +19,7 @@ securityDefinitions:
     type: apiKey
     name: Authorization
     in: header
-    description: Enter your JWT token to authenticate your requests. _Bearer 'access token'_
+    description: Enter your JWT token to authenticate your requests. `Bearer <token>`
 
 consumes:
   - application/json
@@ -157,7 +157,7 @@ paths:
         - name: Authorization
           in: header
           type: string
-          description: _Bearer 'token'_
+          description: `Bearer <token>`
       responses:
         "200":
           description: Get data successfully
@@ -181,7 +181,7 @@ paths:
       parameters:
         - name: Authorization
           in: header
-          description: _Bearer 'token'_
+          description: `Bearer <token>`
           # required: true
           type: string
         - name: body
@@ -224,7 +224,7 @@ paths:
         - Bearer: []
       parameters:
         - name: Authorization
-          description: _Bearer 'token'_
+          description: `Bearer <token>`
           in: header
           type: string
           # required: true
@@ -265,7 +265,7 @@ paths:
         - Bearer: []
       parameters:
         - name: Authorization
-          description: _Bearer 'token'_
+          description: `Bearer <token>`
           in: header
           type: string
           # required: true
@@ -312,7 +312,7 @@ paths:
         - Bearer: []
       parameters:
         - name: Authorization
-          description: _Bearer 'token'_
+          description: `Bearer <token>`
           in: header
           type: string
           # required: true
@@ -377,7 +377,7 @@ paths:
       parameters:
         - name: Authorization
           in: header
-          description: _Bearer 'access token'_
+          description: `Bearer <token>`
           type: string
         - name: name
           in: formData
@@ -391,11 +391,11 @@ paths:
           type: string
         - name: categories
           in: formData
-          description: A list of category ID
+          description: A list of category ID.
           type: array
             items:
               type: string
-          example: ["CategoryID 1", "CategoryID 2"]
+          example: `["CategoryID 1", "CategoryID 2"]`
         - name: author
           in: formData
           description: The name of author
@@ -542,7 +542,7 @@ paths:
       parameters:
         - name: Authorization
           in: header
-          description: Bearer 'access token'
+          description: `Bearer <token>`
           type: string
         - name: body
           in: body
@@ -593,7 +593,7 @@ paths:
       parameters:
         - name: Authorization
           in: header
-          description: Bearer 'access token'
+          description: `Bearer <token>`
           type: string
         - name: id
           in: path
@@ -707,7 +707,7 @@ paths:
       parameters:
         - name: Authorization
           in: header
-          description: Bearer 'access token'
+          description: `Bearer <token>`
           type: string
         - name: body
           in: body
@@ -759,7 +759,7 @@ paths:
         - name: Authorization
           in: header
           type: string
-          description: Bearer 'token'
+          description:  `Bearer <token>`
         - name: body
           in: body
           required: true
@@ -812,7 +812,7 @@ paths:
         - name: Authorization
           in: header
           type: string
-          description: Bearer 'token'
+          description: `Bearer <token>`
         - name: id
           in: path
           description: Category ID
@@ -840,7 +840,7 @@ paths:
       parameters:
         - name: Authorization
           in: header
-          description: Bearer 'token' 
+          description: `Bearer <token>`
           type: string
         - name: body
           in: body
@@ -886,7 +886,7 @@ paths:
       parameters:
         - name: Authorization
           in: header
-          description: _Bearer 'token'_
+          description: `Bearer <token>`
           type: string
         - name: body
           in: body
@@ -913,7 +913,408 @@ paths:
         "403":
           description: Not authorized
 
+  # Rating
+  /rating:
+    post:
+      tags:
+        - Rating
+      summary: Rating a book that has been bought
+      description: Review a book that has been successfully delivered 
+      security:
+        - Bearer: []
+      parameters:
+        - name: Authorization
+          in: header
+          description: `Bearer <token>`
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              bookId:
+                type: string
+                description: The book ID
+                required: true
+              rating:
+                type: integer
+                description: Rating point. 0 -> 5
+                example: 5
+                required: true
+              comment:
+                type: string
+                description: comment
+      responses:
+        "201":
+          description: Rate successfully
+          schema:
+            type: object
+            properties:
+              status: 
+                type: boolean
+                example: true
+              message:
+                type: string
+                example: Rate successfully
+              data:
+                type: object
+                properties:
+                  _id: 
+                    type: string
+                    description: Rating ID
+                  book: 
+                    type: string
+                    description: Book ID
+                  rating:
+                    type: integer
+                    description: Rating point
+                  comment:
+                    type: string
+                    description: Comment
+                  ratingPoint:
+                    type: integer
+                    description: The average rating point of this book
+                  numOfReivews:
+                    type: integer
+                    description: The number of rating this book
+        "400":
+          description: Rate failed with error message
+        "401":
+          description: Not authenticated
+        "403":
+          description: Not authorized
+        "500":
+          description: Server Internal Error
+      
+  /rating/{bookId}:
+    get:
+      tags:
+        - Rating
+      summary: Query list of reviews about the book
+      description: Return a list of reviews
+      parameters:
+        - name: bookId
+          in: path
+          type: string
+          description: ID of the book you want to query for reviews
+          required: true
+        - name: limit
+          in: query
+          type: integer
+          description: The maximum of reviews to retrieve. Default is 24
+        - name: frame
+          in: query
+          type: integer
+          description: The page or frame to retrieve. Default is 1
+      responses:
+        "200":
+          description: Successfully
+          schema:
+            type: object
+            properties:
+              status: 
+                type: boolean
+                example: true
+              message:
+                type: string
+                example: Get ratings successfully
+              data:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      description: ID of the review
+                    rating:
+                      type: integer
+                      description: rating point
+                      example: 5
+                    comment:
+                      type: string
+                      description: Review content
+                    customer:
+                      type: object
+                      properties:
+                        _id: 
+                          type: string
+                          description: User ID
+                        name:
+                          type: string
+                          description: The name of user
+                        avatar:
+                          type: string
+                          description: The profile image of user
+                    replies:
+                      type: array
+                      description: An array of reviews. Default 12 records
+                      items:
+                        type: object
+                        properties:
+                          _id:
+                            type: string
+                            description: ID of the reply
+                          comment:
+                            type: string
+                            description: Reply content
+                          user:
+                            type: object
+                            properties:
+                              _id: 
+                                type: string
+                                description: The user ID who wrote reply
+                              name:
+                                type: string
+                                description: The name of User who wrote reply
+                              avatar:
+                                type: string
+                                description: Profile image url of user who wrote reply
+                    createdAt:
+                      type: string
+                      description: review creation time
+                      format: date-time
+        "400": 
+          description: Query failed with a message
 
+  /rating/reply/{ratingId}:
+    post:
+      tags:
+        - Rating
+      summary: Reply a review
+      description: Admin or user who wrote this review can respond to this review
+      security:
+        - Bearer: []
+      parameters:
+        - name: Authorization
+          in: header
+          description: `Bearer <token>`
+          type: string
+        - name: bookId
+          required: true
+          description: The book ID
+          type: string
+          in: path
+        - name: body
+          in: body
+          required: true
+          description: Content to create a reply
+          schema:
+            type: object
+            properties:
+              comment:
+                type: string
+                description: Write something to reply
+      responses:
+        "201":
+          description: Reply successfully
+          schema:
+            type: object
+            properties:
+              status:
+                type: boolean
+                example: true
+              message: 
+                type: string
+                example: reply successfully
+              data:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                    description:  Reply ID
+                  comment: 
+                    type: string
+                    description: Content of reply
+                  createdAt:
+                    type: string
+                    description: The reply time
+                    format: date-time
+        "400":
+          description: Failure with an error message
+
+  /rating/rely/{ratingId}:
+    get:
+      tags:
+        - Rating
+      summary: List of replies to a review
+      description: A list of replies to a review. Default limit is 12. You can use parameters limit and frame.
+      parameters:
+        - name: ratingId
+          in: path
+          required: true
+          description: The review ID which wants to query replies
+        - name: limit
+          in: query
+          type: integer
+          description: The maximum of reviews to retrieve. Default is 12
+        - name: frame
+          in: query
+          type: integer
+          description: The page or frame to retrieve. Default is 1
+      responses:
+        "200":
+          description: Query successfully
+          schema:
+            type: object
+            properties:
+              status:
+                type: boolean
+                example: true
+              message:
+                type: string
+                example: "Get replies successfully"
+              data:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      description: The reply ID
+                    comment:
+                      type: string
+                      description: Reply content
+                    user:
+                      type: object
+                      properties:
+                        _id: 
+                          type: string
+                          description: The user ID
+                        name:
+                          type: string
+                          description: The user's name
+                        avatar:
+                          type: string
+                          description: User profile image url
+                    createdAt:
+                      type: string
+                      description: The reply time
+                      format: date-time
+        "400":
+          description: Failure with an error message
+
+  /rating/update:
+    patch:
+      tags:
+        - Rating
+      summary: Update review       
+      description: User who wrote the review can update this review
+      security:
+        - Bearer: []
+      parameters:
+        - name: Authorization
+          in: header
+          description: `Bearer 'token'`
+          type: string
+        - name: body
+          in: body
+          required: true
+          description: Data to update review
+          schema:
+            type: object
+            properties:
+              ratingId:
+                type: string
+                required: true
+                description: The rating ID
+              comment:
+                type: string
+                description: New content of review
+              rating:
+                type: integer
+                description: Star 0 -> 5
+      responses:
+        "200":
+          description: Update successfully
+          schema:
+            type: object
+            properties:
+              status:
+                type: boolean
+                example: true
+              message:
+                type: string
+                example: Update successfully
+              data:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                    description: The rating ID
+                  book:
+                    type: string
+                    description: The ID of the book was reviewed
+                  comment:
+                    type: string
+                    description: New review
+                  ratingPoint:
+                    type: number
+                    description: The rating point of the book
+                  numOfReivews:
+                    type: integer
+                    description: The number of reviews
+        "400":
+          description: Failure with an error message
+        "401":
+          description: Not authenticated    
+        "403":
+          description: Not authorized
+
+  /rating/{ratingId}:
+    delete:
+      tags:
+        - Rating
+      summary: Delete a review
+      definitions: Admin and who wrote this review can delete it.
+      parameters:
+        - name: Authorization
+          in: header
+          type: string
+          description: `Bearer 'token'`   
+        - name: ratingId
+          in: path
+          required: true
+          type: string
+          description: The rating ID you want to delete
+      responses:
+        "200":
+          description: Delete successfully
+          schema:
+            type: object
+            properties:
+              status:
+                type: boolean
+                example: true
+              message:
+                type: string
+                example: Delete successfully
+              data:
+                type: object
+                schema:
+                  type: object
+                  properties:
+                    book:
+                      type: string
+                      description: The book ID
+                    ratingPoint:
+                      type: number
+                      description: The rating point of the book
+                    numOfReviews: 
+                      type: integer
+                      description: The number of reivews
+        "400":
+          description: Failure with an error message
+        "401":
+          description: Not authenticated
+        "403":
+          description: Not authorized   
+
+
+
+
+
+          
 
 definitions:
   UserInfo:

@@ -2,6 +2,7 @@ import bookRoute from "./book.js";
 import categoryRoute from "./category.js";
 import userRoute from "./user.js";
 import orderRoute from "./order.js";
+import ratingRoute from "./rating.js";
 import swaggerUI from "swagger-ui-express";
 import YAML from "yamljs";
 const swaggerSpec = YAML.load("./swagger.yaml");
@@ -12,6 +13,7 @@ const route = (app) => {
     app.use("/api/book", bookRoute);
     app.use("/api/category", categoryRoute);
     app.use("/api/order", orderRoute);
+    app.use("/api/rating", ratingRoute);
 };
 
 export default route;

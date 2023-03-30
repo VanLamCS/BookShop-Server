@@ -1,37 +1,36 @@
 import mongoose from "mongoose";
 
-const ReviewSchema = new mongoose.Schema(
+const RatingSchema = new mongoose.Schema(
     {
-        reviewPoint: {
+        rating: {
             type: Number,
             min: 0,
             max: 5,
-        },
-        description: {
-            type: String,
             required: true,
         },
-        creator: {
+        comment: {
+            type: String,
+        },
+        customer: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
+            required: true,
         },
         book: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Book",
+            required: true,
         },
-        replies: [
-            {
-                message: String,
-                userId: mongoose.Schema.Types.ObjectId,
-                ref: "User",
-            },
-        ],
+        replies: {
+            type: [mongoose.Schema.Types.ObjectId],
+            ref: "RatingReply",
+        },
     },
     {
         timestamps: true,
     }
 );
 
-const Review = mongoose.model("Review", ReviewSchema);
+const Rating = mongoose.model("Rating", RatingSchema);
 
-export default Review;
+export default Rating;
