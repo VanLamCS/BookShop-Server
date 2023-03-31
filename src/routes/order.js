@@ -12,5 +12,10 @@ router.put(
     isAdmin,
     orderController.updateStatus
 );
+router.get("/", verifyToken, isAdmin, orderController.queryOrders);
+
+router.get("/my-orders", verifyToken, orderController.queryMyOrders);
+
+router.get("/:orderId", verifyToken, orderController.orderDetail);
 
 export default router;

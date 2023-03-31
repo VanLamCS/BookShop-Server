@@ -120,3 +120,132 @@ export const updateStatus = async (req, res, next) => {
         return next(new Error(err.message));
     }
 };
+
+export const queryOrders = async (req, res, next) => {
+    let limit = req.query.limit || 24;
+    if (parseInt(limit) <= 0) limit = 24;
+    let frame = req.query.frame || 1;
+    if (parseInt(frame) <= 0) frame = 1;
+    const pending = req.query.pending;
+    const processing = req.query.processing;
+    const shipped = req.query.shipped;
+    const delivered = req.query.delivered;
+    // let sortBy = req.query.sort_by || "created-at";
+    const orderBy = req.query.order_by || "asc";
+    let findStatus = [];
+    if (pending === "true") findStatus.push("Pending");
+    if (processing === "true") findStatus.push("Processing");
+    if (shipped === "true") findStatus.push("Shipped");
+    if (delivered === "true") findStatus.push("Delivered");
+    if (
+        pending !== "true" &&
+        processing !== "true" &&
+        shipped !== "true" &&
+        delivered !== "true"
+    ) {
+        findStatus = ["Pending", "Processing", "Shipped", "Delivered"];
+    }
+    try {
+        let orders = await Order.find({ status: { $in: findStatus } })
+            .sort({ createdAt: orderBy === "desc" ? -1 : 1 })
+            .skip((frame - 1) * limit)
+            .limit(limit)
+            .populate("customer", "_id name avatar")
+            .populate("items.product", "_id name price images");
+        return res.status(200).json({
+            status: true,
+            message: "Query orders successfully",
+            data: orders,
+        });
+    } catch (error) {
+        res.status(400);
+        return next(new Error(`Error: ${error.message}`));
+    }
+};
+
+export const queryMyOrders = async (req, res, next) => {
+    try {
+        const userId = req.user._id;
+        let limit = req.query.limit || 24;
+        if (parseInt(limit) <= 0) limit = 24;
+        let frame = req.query.frame || 1;
+        if (parseInt(frame) <= 0) frame = 1;
+        const pending = req.query.pending;
+        const processing = req.query.processing;
+        const shipped = req.query.shipped;
+        const delivered = req.query.delivered;
+        const orderBy = req.query.order_by || "asc";
+        let findStatus = [];
+        if (pending === "true") findStatus.push("Pending");
+        if (processing === "true") findStatus.push("Processing");
+        if (shipped === "true") findStatus.push("Shipped");
+        if (delivered === "true") findStatus.push("Delivered");
+        if (
+            pending !== "true" &&
+            processing !== "true" &&
+            shipped !== "true" &&
+            delivered !== "true"
+        ) {
+            findStatus = ["Pending", "Processing", "Shipped", "Delivered"];
+        }
+        let orders = await Order.find({
+            status: { $in: findStatus },
+            customer: userId,
+        })
+            .sort({ createdAt: orderBy === "desc" ? -1 : 1 })
+            .skip((frame - 1) * limit)
+            .limit(limit)
+            .populate("customer", "_id name avatar")
+            .populate("items.product", "_id name price images");
+        return res.status(200).json({
+            status: true,
+            message: "Query orders successfully",
+            data: orders,
+        });
+    } catch (error) {
+        res.status(400);
+        return next(new Error(`Error: ${error.message}`));
+    }
+};
+
+export const orderDetail = async (req, res, next) => {
+    try {
+        const userId = req.user._id;
+        const userRole = req.user.role;
+        const orderId = req.params.orderId;
+        if (!mongoose.Types.ObjectId.isValid(orderId)) {
+            return res
+                .status(400)
+                .json({ status: false, message: "Order ID is not valid" });
+        }
+        let order = await Order.findById(orderId);
+        if (order !== {}) {
+            if (
+                order.customer.toString() === userId.toString() ||
+                userRole === "admin"
+            ) {
+                const data = await Order.findById(orderId)
+                    .select("_id items totalCost status createdAt updatedAt")
+                    .populate("items.product", "_id name price images");
+                return res.status(200).json({
+                    status: true,
+                    message: "Query successfully",
+                    data: data,
+                });
+            } else {
+                return res.status(403).json({
+                    status: false,
+                    message: "You don't have permission to query this order",
+                });
+            }
+        } else {
+            return res
+                .status(404)
+                .json({ status: false, message: "Order is not found" });
+        }
+        res.send("cc");
+    } catch (error) {
+        res.status(400);
+        return next(new Error(`Error: ${error.message}`));
+    }
+};

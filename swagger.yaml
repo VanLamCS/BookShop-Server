@@ -913,6 +913,272 @@ paths:
         "403":
           description: Not authorized
 
+  /order:
+    get:
+      tags:
+        - Order
+      summary: Admin queries orders
+      description: Admin can query orders
+      security:
+        - Bearer: []
+      parameters:
+        - name: Authorization
+          in: header
+          type: string
+          description: `Bearer 'token'`
+        - name: order_by
+          in: query
+          type: string
+          enum: ["asc", "desc"]
+          description: Sort by the time that order was created and order by 'asc' or 'desc'
+        - name: limit
+          in: query
+          description: The number of orders to retrieve
+          type: integer
+          minimum: 1
+        - name: frame
+          in: query
+          description: The frame or page to retrieve
+          type: integer
+          minimum: 1
+        - name: pending
+          in: query
+          description: If this field has value is 'true' the query will return orders have status 'Pending'
+          type: string
+        - name: processing
+          in: query
+          description: If this field has value is 'true' the query will return orders have status 'Processing'
+          type: string
+        - name: Shipped
+          in: query
+          description: If this field has value is 'true' the query will return orders have status 'shipped'
+          type: string
+        - name: delivered
+          in: query
+          description: If this field has value is 'true' the query will return orders have status 'Delivered'
+          type: string
+      responses:
+        "200":
+          description: Query successfully
+          schema:
+            type: object
+            properties:
+              status:
+                type: boolean
+                example: true
+              message:
+                type: string
+                example: Query orders successfully
+              data:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      description: The order ID
+                    customer:
+                      type: object
+                      description: Information about user who created this order
+                      properties:
+                        _id: 
+                          type: string
+                          description: The user ID
+                        name:
+                          type: string
+                          description: Name of the User
+                        avatar:
+                          type: string
+                          description: Profile image url
+                    items:
+                      type: array
+                      description: A list of products in this order
+                      items:
+                        type: object
+                        properties:
+                          product:
+                            type: object
+                            properties:
+                              _id: 
+                                type: string
+                                description: The book ID
+                              name:
+                                type: string
+                                description: Book description
+                              price:
+                                type: integer
+                                description: The cost of each book
+                          quantity:
+                            type: integer
+                            description: The number of books
+                          cost:
+                            type: integer
+                            description: total cost of these books         
+                    totalCost:
+                      type: integer
+                      description: total cost of this order
+                    status:
+                      type: string
+                      description: Status of order
+                    createdAt:
+                      type: string
+                      format: date-time
+                      description: The time order was created
+                    updatedAt:
+                      type: string
+                      format: date-time
+                      description: The time order was updated      
+        "400":
+          description: Failure with an error message
+        "401":
+          description: Not authenticated
+        "403":
+          description: Not authorized
+        
+  /order/my-orders:
+    get:
+      tags:
+        - Order
+      summary: User queries orders
+      description: Users can query orders of them
+      security:
+        - Bearer: []
+      parameters:
+        - name: Authorization
+          in: header
+          type: string
+          description: `Bearer 'token'`
+        - name: order_by
+          in: query
+          type: string
+          enum: ["asc", "desc"]
+          description: Sort by the time that order was created and order by 'asc' or 'desc'
+        - name: limit
+          in: query
+          description: The number of orders to retrieve
+          type: integer
+          minimum: 1
+        - name: frame
+          in: query
+          description: The frame or page to retrieve
+          type: integer
+          minimum: 1
+        - name: pending
+          in: query
+          description: If this field has value is 'true' the query will return orders have status 'Pending'
+          type: string
+        - name: processing
+          in: query
+          description: If this field has value is 'true' the query will return orders have status 'Processing'
+          type: string
+        - name: Shipped
+          in: query
+          description: If this field has value is 'true' the query will return orders have status 'shipped'
+          type: string
+        - name: delivered
+          in: query
+          description: If this field has value is 'true' the query will return orders have status 'Delivered'
+          type: string
+      responses:
+        "200":
+          description: Query successfully
+          schema:
+            type: object
+            properties:
+              status:
+                type: boolean
+                example: true
+              message:
+                type: string
+                example: Query orders successfully
+              data:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      description: The order ID
+                    customer:
+                      type: object
+                      description: Information about user who created this order
+                      properties:
+                        _id: 
+                          type: string
+                          description: The user ID
+                        name:
+                          type: string
+                          description: Name of the User
+                        avatar:
+                          type: string
+                          description: Profile image url
+                    items:
+                      type: array
+                      description: A list of products in this order
+                      items:
+                        type: object
+                        properties:
+                          product:
+                            type: object
+                            properties:
+                              _id: 
+                                type: string
+                                description: The book ID
+                              name:
+                                type: string
+                                description: Book description
+                              price:
+                                type: integer
+                                description: The cost of each book
+                          quantity:
+                            type: integer
+                            description: The number of books
+                          cost:
+                            type: integer
+                            description: total cost of these books         
+                    totalCost:
+                      type: integer
+                      description: total cost of this order
+                    status:
+                      type: string
+                      description: Status of order
+                    createdAt:
+                      type: string
+                      format: date-time
+                      description: The time order was created
+                    updatedAt:
+                      type: string
+                      format: date-time
+                      description: The time order was updated 
+        "400":
+          description: Failure with an error message
+        "401":
+          description: Not authenticated
+        "403":
+          description: Not authorized
+
+  # /order/{orderId}:
+  #   get:
+  #     tags:
+  #       - Order
+  #     summary: Get detail information about an order
+  #     description: Admin or user who created this order can do this action
+  #     security:
+  #       - Bearer: []
+  #     parameters:
+  #       - name: Authorization
+  #         in: header
+  #         description: `Bearer 'token'`
+  #         type: string
+  #       - name: orderId
+  #         in: path
+  #         type: string
+  #         description: The order ID
+  #         required: true
+  #     responses:
+  #       "200":
+  #         description:
+
   # Rating
   /rating:
     post:
