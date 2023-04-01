@@ -166,6 +166,7 @@ export const queryOrders = async (req, res, next) => {
 export const queryMyOrders = async (req, res, next) => {
     try {
         const userId = req.user._id;
+        const user = req.user;
         let limit = req.query.limit || 24;
         if (parseInt(limit) <= 0) limit = 24;
         let frame = req.query.frame || 1;
@@ -195,8 +196,9 @@ export const queryMyOrders = async (req, res, next) => {
             .sort({ createdAt: orderBy === "desc" ? -1 : 1 })
             .skip((frame - 1) * limit)
             .limit(limit)
-            .populate("customer", "_id name avatar")
-            .populate("items.product", "_id name price images");
+            // .populate("customer", "_id name avatar")
+            .populate("items.product", "_id name price images")
+            .select("-customer");
         return res.status(200).json({
             status: true,
             message: "Query orders successfully",
@@ -243,7 +245,6 @@ export const orderDetail = async (req, res, next) => {
                 .status(404)
                 .json({ status: false, message: "Order is not found" });
         }
-        res.send("cc");
     } catch (error) {
         res.status(400);
         return next(new Error(`Error: ${error.message}`));

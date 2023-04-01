@@ -1099,24 +1099,11 @@ paths:
                     _id:
                       type: string
                       description: The order ID
-                    customer:
-                      type: object
-                      description: Information about user who created this order
-                      properties:
-                        _id: 
-                          type: string
-                          description: The user ID
-                        name:
-                          type: string
-                          description: Name of the User
-                        avatar:
-                          type: string
-                          description: Profile image url
                     items:
                       type: array
                       description: A list of products in this order
                       items:
-                        type: object
+                        type: array
                         properties:
                           product:
                             type: object
@@ -1130,6 +1117,11 @@ paths:
                               price:
                                 type: integer
                                 description: The cost of each book
+                              images:
+                                type: array
+                                items:
+                                  type: string
+                                  description: Image URL
                           quantity:
                             type: integer
                             description: The number of books
@@ -1157,27 +1149,82 @@ paths:
         "403":
           description: Not authorized
 
-  # /order/{orderId}:
-  #   get:
-  #     tags:
-  #       - Order
-  #     summary: Get detail information about an order
-  #     description: Admin or user who created this order can do this action
-  #     security:
-  #       - Bearer: []
-  #     parameters:
-  #       - name: Authorization
-  #         in: header
-  #         description: `Bearer 'token'`
-  #         type: string
-  #       - name: orderId
-  #         in: path
-  #         type: string
-  #         description: The order ID
-  #         required: true
-  #     responses:
-  #       "200":
-  #         description:
+  /order/{orderId}:
+    get:
+      tags:
+        - Order
+      summary: Get detail information about an order
+      description: Admin or user who created this order can do this action
+      security:
+        - Bearer: []
+      parameters:
+        - name: Authorization
+          in: header
+          description: `Bearer 'token'`
+          type: string
+        - name: orderId
+          in: path
+          type: string
+          description: The order ID
+          required: true
+      responses:
+        "200":
+          description: Success
+          schema:
+            type: object
+            properties:
+              status:
+                type: boolean
+                example: true
+              message:
+                type: string
+                example: Query successfully
+              data:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                    description: The order ID
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id: 
+                          type: string
+                          description: The book ID
+                        name:
+                          type: string
+                          description: Book name
+                        price:
+                          type: integer
+                          description: Price  
+                        images:
+                          type: array
+                          items:
+                            type: string
+                            description: Image URL
+                        quantity:
+                          type: integer
+                  totalCost:
+                    type: integer
+                    description: Order cost
+                  status:
+                    type: string
+                  createdAt:
+                    type: string
+                    format: date-time
+                  updatedAt:
+                    type: string
+                    format: date-time
+        "400":
+          description: Failure with an error message
+        "401":
+          description: Not authenticated
+        "403":
+          description: Not authorized
+        "404":
+          description: Product is not found                  
 
   # Rating
   /rating:
