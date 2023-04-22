@@ -9,10 +9,15 @@ info:
     - url: "http://localhost:5000/"
       scheme: http
       description: Local server
-host: localhost:5000
+    - url: "https://bookshop-fcrc.onrender.com/"
+      scheme: https
+      description: Production server
+host: 
+  - bookshop-fcrc.onrender.com
 basePath: /api
 schemes:
   - http
+  - https
 
 securityDefinitions:
   Bearer:
